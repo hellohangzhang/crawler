@@ -1,5 +1,6 @@
 import requests
-# 引用requests模块
+import openpyxl
+
 url = 'https://c.y.qq.com/soso/fcgi-bin/client_search_cp'
 singer = input('Input your favorite singer:')
 params = {
@@ -32,11 +33,19 @@ headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/5
 'Origin':'https://y.qq.com',
 'Referer':'https://y.qq.com/portal/search.html'
 }
-    # 将参数封装为字典，其中pagenum和lastcommentid是特殊的变量
+
 res = requests.get(url,params=params,headers=headers)
-    # 调用get方法，下载评论列表
+
 res_1_json = res.json()
 song_lists = res_1_json['data']['song']['list']
+song_infos= []
+wb = openpyxl.Workbook()
+sheet = wb.active
+sheet.append(['歌曲名','所属专辑','播放时长'])
 
 for song_list in song_lists:
-	print(song_list['name'])
+	m,s = divmod(int(song_list['interval']),60)
+	time_interval = str(m)+':'+str(s)
+	sheet.append([song_list['name'],song_list['album']['name'],time_interval])
+
+wb.save('周杰伦的歌曲信息.xlsx')
